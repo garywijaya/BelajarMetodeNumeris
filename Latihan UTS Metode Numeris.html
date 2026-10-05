@@ -1,0 +1,390 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Latihan UTS Metode Numeris</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: buku catatan berpetak; tab bagian di atas, soal sebagai lembar kerja bertumpuk */
+:root{
+  --bg:#f6f7f4; --paper:#ffffff; --grid:#e6eae4; --ink:#1d2430; --muted:#5b6573;
+  --accent:#1f4fa3; --accent-soft:#e3ebf8; --line:#d5dbd3;
+  --ok:#1d7a45; --ok-soft:#e1f2e7; --bad:#b3312c; --bad-soft:#f8e3e1; --warn:#9a6a00;
+  --f-display:"Newsreader", Georgia, serif; --f-body:"Public Sans", system-ui, sans-serif; --f-mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#13171d; --paper:#1a1f27; --grid:#222833; --ink:#e4e8ee; --muted:#9aa4b2;
+  --accent:#7ea6ec; --accent-soft:#1f2c44; --line:#2e3542;
+  --ok:#5cc58a; --ok-soft:#173326; --bad:#ef7d77; --bad-soft:#3a1d1c; --warn:#e0b450; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13171d; --paper:#1a1f27; --grid:#222833; --ink:#e4e8ee; --muted:#9aa4b2;
+  --accent:#7ea6ec; --accent-soft:#1f2c44; --line:#2e3542;
+  --ok:#5cc58a; --ok-soft:#173326; --bad:#ef7d77; --bad-soft:#3a1d1c; --warn:#e0b450; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+.wrap{max-width:860px;margin:0 auto;padding-inline:16px;padding-block:24px 64px}
+header h1{font-family:var(--f-display);font-weight:650;font-size:clamp(1.7rem,4vw,2.3rem);line-height:1.15;margin:0 0 6px;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.progress{display:flex;align-items:center;gap:12px;margin-top:14px;font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.bar{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:6px;overflow-x:auto;padding-block:12px;margin-top:16px;border-bottom:1px solid var(--line)}
+nav.tabs button{flex:0 0 auto;font:600 13px var(--f-body);border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:7px 12px;border-radius:6px;cursor:pointer;display:flex;gap:6px;align-items:center}
+nav.tabs button .n{font-family:var(--f-mono);color:var(--muted);font-weight:400}
+nav.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+nav.tabs button[aria-selected="true"] .n{color:var(--paper);opacity:.8}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.part-head{margin:22px 0 12px}
+.part-head h2{font-family:var(--f-display);font-weight:650;font-size:1.55rem;margin:0;text-wrap:balance}
+.part-head .src{font-size:13px;color:var(--muted)}
+details.rumus{background:var(--accent-soft);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:18px}
+details.rumus summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--accent)}
+details.rumus ul{margin:8px 0 2px;padding-left:20px}
+details.rumus li{margin:4px 0}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.q-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.q-top h3{margin:0;font-size:15px;font-weight:700}
+.q-top h3 .id{font-family:var(--f-mono);color:var(--accent);margin-right:6px}
+.tag{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.state{font-family:var(--f-mono);font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.state.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.state.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.stmt{margin:10px 0 12px;max-width:72ch}
+.stmt p{margin:6px 0}
+.eq{font-family:var(--f-mono);font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin:8px 0;overflow-x:auto;white-space:pre}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:10px 0}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:13px;color:var(--muted)}
+.field .row{display:flex;align-items:center;gap:6px}
+.field input{width:100%;min-width:0;font:15px var(--f-mono);padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+.field input.ok{border-color:var(--ok);background:var(--ok-soft)}
+.field input.bad{border-color:var(--bad);background:var(--bad-soft)}
+.field .mark{font-family:var(--f-mono);font-size:14px;width:16px;flex:0 0 16px}
+.opts{display:grid;gap:6px;margin:8px 0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;background:var(--bg)}
+.opt input{margin-top:4px}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{font:600 13px var(--f-body);padding:7px 14px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--paper);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.feedback{font-size:13px;margin-top:8px;color:var(--muted)}
+.sol{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}
+.sol h4{margin:0 0 6px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.sol p{margin:6px 0;max-width:72ch}
+.tbl{overflow-x:auto;margin:8px 0}
+table{border-collapse:collapse;font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums}
+th,td{border:1px solid var(--line);padding:4px 9px;text-align:right;white-space:nowrap}
+th{background:var(--bg);font-family:var(--f-body);font-weight:700;text-align:center}
+tr.hl td{background:var(--ok-soft);color:var(--ok);font-weight:600}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.95em;margin:0 2px}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 3px}
+.frac>span:last-child{padding:0 3px}
+.m{font-family:var(--f-mono);font-size:.95em}
+.note{font-size:13px;color:var(--warn)}
+.foot{margin-top:28px;font-size:13px;color:var(--muted)}
+.reset{background:none;border:none;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Latihan UTS Metode Numeris</h1>
+  <p>Soal per bagian mengikuti urutan Lecture 02 sampai 07 (Dr. Yohan Fajar Sidik). Ketik jawabanmu, tekan <b>Cek</b>, lalu buka pembahasan. Desimal boleh pakai titik atau koma. Bagian terakhir adalah simulasi UTS tanpa rumus bantu.</p>
+  <div class="progress"><span id="prog-txt">0 / 0 soal benar</span><div class="bar"><i id="prog-bar"></i></div></div>
+</header>
+<nav class="tabs" id="tabs" role="tablist"></nav>
+<main id="main"></main>
+<p class="foot">Toleransi pengecekan sekitar 0,5% dari kunci (lebih ketat untuk angka bulat). Kalau jawabanmu beda di digit terakhir karena pembulatan di tengah jalan, itu masih wajar. <button class="reset" id="reset">Hapus semua jawaban</button></p>
+</div>
+
+<script>
+const F=(n,d)=>`<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const T=(head,rows,hl)=>`<div class="tbl"><table><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map((r,i)=>`<tr${hl&&hl.includes(i)?' class="hl"':''}>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table></div>`;
+
+const PARTS=[
+{key:'p1',tab:'Galat',title:'Bagian 1. Galat dan Angka Penting',src:'Lecture 02 · Chapra Bab 3',
+rumus:[
+ `Galat sejati: <span class="m">E<sub>t</sub> = nilai sejati − aproksimasi</span>`,
+ `Galat relatif sejati: <span class="m">ε<sub>t</sub> = </span>${F('E<sub>t</sub>','nilai sejati')}<span class="m"> × 100%</span>`,
+ `Galat aproksimasi: <span class="m">|ε<sub>a</sub>| = </span>${F('aprox. sekarang − aprox. sebelumnya','aprox. sekarang')}<span class="m"> × 100%</span>`,
+ `Kriteria Scarborough (benar minimal n angka penting): <span class="m">ε<sub>s</sub> = (0,5 × 10<sup>2−n</sup>)%</span>`,
+ `Kali/bagi: ikuti jumlah angka penting paling sedikit. Tambah/kurang: ikuti jumlah desimal paling sedikit.`,
+ `Round-off: karena presisi terbatas (π disimpan 3,1416; 0,1 di biner). Truncation: karena proses tak hingga dipotong (deret, beda hingga).`],
+qs:[
+{id:'1.1',tag:'Hitungan',stmt:`<p>Nilai sejati π = 3,14159265. Seorang mahasiswa memakai aproksimasi 22/7. Hitung galat sejati E<sub>t</sub> dan galat relatif sejati |ε<sub>t</sub>| dalam persen.</p>`,
+ fields:[{l:'E<sub>t</sub>',a:-0.0012645,abs:2e-6},{l:'|ε<sub>t</sub>| (%)',a:0.04025,abs:3e-4}],
+ sol:`<p>22/7 = 3,14285714.</p><p>E<sub>t</sub> = 3,14159265 − 3,14285714 = <b>−0,0012645</b> (negatif karena aproksimasi lebih besar dari nilai sejati).</p><p>|ε<sub>t</sub>| = ${F('0,0012645','3,14159265')} × 100% = <b>0,0402%</b>.</p>`},
+{id:'1.2',tag:'Hitungan',stmt:`<p>Berapa ε<sub>s</sub> (dalam %) agar hasil iterasi dijamin benar minimal (a) 2 angka penting dan (b) 4 angka penting?</p>`,
+ fields:[{l:'(a) n = 2, ε<sub>s</sub> (%)',a:0.5,abs:1e-9},{l:'(b) n = 4, ε<sub>s</sub> (%)',a:0.005,abs:1e-9}],
+ sol:`<p>ε<sub>s</sub> = (0,5 × 10<sup>2−n</sup>)%.</p><p>(a) n = 2: 0,5 × 10<sup>0</sup> = <b>0,5%</b>. (b) n = 4: 0,5 × 10<sup>−2</sup> = <b>0,005%</b>.</p>`},
+{id:'1.3',tag:'Iterasi deret',stmt:`<p>Hitung e<sup>0,8</sup> dengan deret Maclaurin <span class="m">e<sup>x</sup> = 1 + x + x²/2! + x³/3! + …</span> sampai hasilnya benar minimal 3 angka penting. Nilai sejati e<sup>0,8</sup> = 2,225541.</p><p>Berapa suku yang dibutuhkan, berapa estimasi akhirnya, dan berapa |ε<sub>a</sub>| saat berhenti?</p>`,
+ fields:[{l:'Jumlah suku',a:7,abs:0},{l:'Estimasi akhir',a:2.225495,abs:2e-5},{l:'|ε<sub>a</sub>| akhir (%)',a:0.01636,abs:5e-4}],
+ sol:`<p>3 angka penting → ε<sub>s</sub> = 0,5 × 10<sup>−1</sup> = 0,05%. Tambah suku satu per satu sampai |ε<sub>a</sub>| &lt; 0,05%.</p>`+
+ T(['Suku','Hasil','|ε<sub>t</sub>| (%)','|ε<sub>a</sub>| (%)'],[[1,'1,000000','55,07','–'],[2,'1,800000','19,12','44,44'],[3,'2,120000','4,742','15,09'],[4,'2,205333','0,9080','3,869'],[5,'2,222400','0,1411','0,7679'],[6,'2,225131','0,01843','0,1227'],[7,'2,225495','0,00207','0,01636']],[6])+
+ `<p>Suku ke-6 masih 0,1227% &gt; 0,05%, jadi lanjut. Suku ke-7: |ε<sub>a</sub>| = ${F('2,225495 − 2,225131','2,225495')} × 100% = 0,0164% &lt; 0,05%. Berhenti di <b>7 suku</b>, hasil <b>2,225495</b>.</p>`},
+{id:'1.4',tag:'Konsep',stmt:`<p>Berapa jumlah angka penting pada bilangan <span class="m">0,003040</span>?</p>`,
+ opts:['3','4','5','6'],ans:1,sol:`<p>Nol di depan (0,00) tidak dihitung. Digit 3, 0 (nol di antara), 4, dan 0 di belakang setelah koma desimal dihitung. Jadi <b>4 angka penting</b>.</p>`},
+{id:'1.5',tag:'Konsep',stmt:`<p>Hasil <span class="m">4,56 × 1,4</span> dengan aturan angka penting yang benar adalah…</p>`,
+ opts:['6,384','6,38','6,4','6'],ans:2,sol:`<p>Perkalian: ikuti angka penting paling sedikit. 4,56 (3 a.p.) dan 1,4 (2 a.p.) → 2 a.p. 6,384 dibulatkan jadi <b>6,4</b>.</p>`},
+{id:'1.6',tag:'Konsep',stmt:`<p>Hasil <span class="m">12,0 + 0,346 + 3,1</span> dengan aturan angka penting yang benar adalah…</p>`,
+ opts:['15,446','15,45','15,4','15'],ans:2,sol:`<p>Penjumlahan: ikuti jumlah desimal paling sedikit. 12,0 dan 3,1 punya 1 desimal → 15,446 dibulatkan jadi <b>15,4</b>.</p>`},
+{id:'1.7',tag:'Konsep',stmt:`<p>Menghitung turunan dengan <span class="m">f'(x) ≈ [f(x+h) − f(x)] / h</span> menghasilkan galat jenis apa?</p>`,
+ opts:['Round-off error','Truncation error','Galat sejati nol','Galat blunder'],ans:1,sol:`<p><b>Truncation error</b>. Beda hingga menggantikan turunan eksak (limit h → 0), jadi ada proses matematis yang dipotong. Round-off muncul karena representasi angka dengan digit terbatas.</p>`},
+{id:'1.8',tag:'Konsep',stmt:`<p>Lima kali pengukuran memberi hasil yang sangat berdekatan satu sama lain, tetapi semuanya jauh dari nilai sejati. Hasil ini…</p>`,
+ opts:['Akurat dan presisi','Akurat tapi tidak presisi','Tidak akurat tapi presisi','Tidak akurat dan tidak presisi'],ans:2,sol:`<p>Presisi = seberapa dekat hasil satu sama lain (sebaran kecil). Akurasi = seberapa dekat ke nilai sejati. Jadi <b>tidak akurat (ada bias) tapi presisi</b>.</p>`}
+]},
+
+{key:'p2',tab:'Gauss-Seidel',title:'Bagian 2. Sistem Persamaan Linear (Gauss-Seidel)',src:'Lecture 03 · Chapra Bab 9 dan 11',
+rumus:[
+ `Tulis ulang tiap persamaan untuk x<sub>i</sub>: <span class="m">x<sub>i</sub> = (b<sub>i</sub> − Σ<sub>j≠i</sub> a<sub>ij</sub>x<sub>j</sub>) / a<sub>ii</sub></span>`,
+ `Selalu pakai nilai <b>terbaru</b> dalam iterasi yang sama (ini beda Gauss-Seidel dengan Jacobi).`,
+ `Galat tiap variabel: <span class="m">|ε<sub>a</sub>|<sub>i</sub> = |(x<sub>i</sub><sup>baru</sup> − x<sub>i</sub><sup>lama</sup>)/x<sub>i</sub><sup>baru</sup>| × 100%</span>. Berhenti kalau <b>semua</b> &lt; ε<sub>s</sub>.`,
+ `Dominan diagonal: <span class="m">|a<sub>ii</sub>| ≥ Σ<sub>j≠i</sub>|a<sub>ij</sub>|</span> untuk semua baris dan minimal satu baris <b>lebih besar</b> → pasti konvergen.`,
+ `Ill-conditioned: determinan dekat 0, perubahan kecil koefisien mengubah solusi besar. Partial pivoting: tukar baris supaya pivot terbesar.`],
+qs:[
+{id:'2.1',tag:'Konsep',stmt:`<p>Matriks koefisien mana yang <b>dominan diagonal</b> menurut definisi di kuliah?</p>`,
+ opts:['[[3, 1, −1], [2, 4, 1], [−1, 2, 5]]','[[4, 2, 3], [1, 5, 1], [2, 1, 6]]','[[1, 3, 1], [4, 1, 2], [1, 1, 4]]','[[5, 2, 3], [1, 4, 3], [2, 2, 4]]'],ans:0,
+ sol:`<p>A: 3 ≥ 1+1 = 2, 4 ≥ 2+1 = 3, 5 ≥ 1+2 = 3, semua terpenuhi dan ada yang lebih besar → <b>dominan diagonal</b>.</p><p>B gagal di baris 1 (4 &lt; 5). C gagal di baris 1 (1 &lt; 4). D menarik: 5 = 5, 4 = 4, 4 = 4, semuanya sama persis sehingga tidak ada baris yang lebih besar, jadi tidak memenuhi syarat.</p>`},
+{id:'2.2',tag:'Konsep',stmt:`<p>Susun ulang agar dominan diagonal:</p><div class="eq">(1)  x₁ + 6x₂ − 2x₃ = 5
+(2) 7x₁ −  x₂ + 2x₃ = 10
+(3) 2x₁ +  x₂ + 8x₃ = 3</div><p>Urutan persamaan yang benar (baris 1, 2, 3) adalah…</p>`,
+ opts:['(1), (2), (3)','(2), (1), (3)','(3), (1), (2)','(2), (3), (1)'],ans:1,
+ sol:`<p>Cari persamaan yang koefisien terbesarnya ada di x₁, x₂, x₃. Persamaan (2): |7| ≥ 1+2 → taruh di baris 1. Persamaan (1): |6| ≥ 1+2 → baris 2. Persamaan (3): |8| ≥ 2+1 → baris 3. Jadi <b>(2), (1), (3)</b>.</p>`},
+{id:'2.3',tag:'Iterasi',stmt:`<p>Selesaikan dengan Gauss-Seidel, tebakan awal x₁ = x₂ = x₃ = 0 (Chapra Contoh 11.3):</p><div class="eq"> 3x₁ − 0,1x₂ − 0,2x₃ =  7,85
+0,1x₁ +   7x₂ − 0,3x₃ = −19,3
+0,3x₁ − 0,2x₂ +  10x₃ =  71,4</div><p>Isi hasil iterasi 1, lalu x₁ pada iterasi 2 beserta |ε<sub>a</sub>|₁-nya.</p>`,
+ fields:[{l:'x₁ iterasi 1',a:2.616667},{l:'x₂ iterasi 1',a:-2.794524},{l:'x₃ iterasi 1',a:7.005610},{l:'x₁ iterasi 2',a:2.990557},{l:'|ε<sub>a</sub>|₁ iterasi 2 (%)',a:12.50,abs:0.05}],
+ sol:`<p>Rumus iterasi:</p><div class="eq">x₁ = (7,85 + 0,1x₂ + 0,2x₃) / 3
+x₂ = (−19,3 − 0,1x₁ + 0,3x₃) / 7
+x₃ = (71,4 − 0,3x₁ + 0,2x₂) / 10</div>
+<p>Iterasi 1: x₁ = 7,85/3 = 2,616667. x₂ = (−19,3 − 0,1(2,616667) + 0)/7 = −2,794524 (pakai x₁ baru). x₃ = (71,4 − 0,3(2,616667) + 0,2(−2,794524))/10 = 7,005610.</p>`+
+ T(['Iter','x₁','|ε<sub>a</sub>|₁ %','x₂','|ε<sub>a</sub>|₂ %','x₃','|ε<sub>a</sub>|₃ %'],[[1,'2,616667','100','−2,794524','100','7,005610','100'],[2,'2,990557','12,50','−2,499625','11,80','7,000291','0,076'],[3,'3,000032','0,316','−2,499988','0,0145','6,999999','0,0042']],[1])+
+ `<p>|ε<sub>a</sub>|₁ = |(2,990557 − 2,616667)/2,990557| × 100% = <b>12,50%</b>. Solusi eksak (3; −2,5; 7).</p>`},
+{id:'2.4',tag:'Iterasi',stmt:`<p>Selesaikan dengan Gauss-Seidel dari x₁ = x₂ = 0 sampai semua |ε<sub>a</sub>| &lt; 1%:</p><div class="eq">4x₁ +  x₂ = 9
+ x₁ + 3x₂ = 5</div>`,
+ fields:[{l:'Jumlah iterasi',a:3,abs:0},{l:'x₁ akhir',a:2.00174},{l:'x₂ akhir',a:0.99942}],
+ sol:`<p>x₁ = (9 − x₂)/4, x₂ = (5 − x₁)/3.</p>`+T(['Iter','x₁','x₂','|ε<sub>a</sub>|₁ %','|ε<sub>a</sub>|₂ %'],[[1,'2,25000','0,91667','100','100'],[2,'2,02083','0,99306','11,34','7,69'],[3,'2,00174','0,99942','0,954','0,637']],[2])+`<p>Iterasi 3: keduanya &lt; 1%, berhenti di <b>3 iterasi</b>. Solusi eksak (2, 1).</p>`},
+{id:'2.5',tag:'Konsep',stmt:`<p>Pada sistem <span class="m">0,0003x₁ + 3x₂ = 2,0001</span> dan <span class="m">x₁ + x₂ = 1</span>, eliminasi Gauss tanpa pivoting dengan 3 angka penting memberi x₁ = −3,33 (eksak 1/3). Penyebab utamanya?</p>`,
+ opts:['Sistemnya singular (D = 0)','Pivot sangat kecil sehingga pengali besar dan terjadi pengurangan dua angka hampir sama','Gauss-Seidel tidak konvergen','Galat truncation dari deret Taylor'],ans:1,
+ sol:`<p>Pivot 0,0003 membuat pengali m = 3330. Saat back-substitution terjadi <b>pengurangan dua angka yang hampir sama</b> (2,0001 − 2,01), sisanya cuma noise pembulatan, lalu dibagi pivot kecil sehingga galatnya membesar. Solusinya partial pivoting: tukar baris supaya pivot = 1.</p>`},
+{id:'2.6',tag:'Konsep',stmt:`<p>Mengapa metode iteratif seperti Gauss-Seidel dipilih untuk sistem besar dan sparse (misalnya PageRank)?</p>`,
+ opts:['Selalu konvergen untuk matriks apa pun','Hanya menyimpan elemen tak nol dan biaya per iterasi O(n²), bukan O(n³)','Tidak punya galat round-off sama sekali','Tidak butuh tebakan awal'],ans:1,
+ sol:`<p>Metode langsung butuh O(n³) operasi dan O(n²) memori. Iteratif cukup O(n²) per iterasi dan memori O(nnz), jadi untuk n = 10⁴ selisihnya 10¹² vs 10⁸. Gauss-Seidel tidak selalu konvergen (perlu dominan diagonal) dan tetap butuh tebakan awal.</p>`}
+]},
+
+{key:'p3',tab:'Biseksi',title:'Bagian 3. Akar Persamaan: Grafis dan Biseksi',src:'Lecture 04 · Chapra Bab 5',
+rumus:[
+ `Syarat: f kontinu di [x<sub>l</sub>, x<sub>u</sub>] dan <span class="m">f(x<sub>l</sub>)·f(x<sub>u</sub>) &lt; 0</span>.`,
+ `<span class="m">x<sub>m</sub> = (x<sub>l</sub> + x<sub>u</sub>)/2</span>`,
+ `Jika f(x<sub>l</sub>)f(x<sub>m</sub>) &lt; 0 → x<sub>u</sub> = x<sub>m</sub>. Jika &gt; 0 → x<sub>l</sub> = x<sub>m</sub>. Jika = 0 → akar ketemu.`,
+ `Iterasi 1 belum punya ε<sub>a</sub>. Mulai iterasi 2: <span class="m">|ε<sub>a</sub>| = |(x<sub>m</sub><sup>baru</sup> − x<sub>m</sub><sup>lama</sup>)/x<sub>m</sub><sup>baru</sup>| × 100%</span>`,
+ `Lebar interval setelah n iterasi: <span class="m">(x<sub>u</sub> − x<sub>l</sub>)/2<sup>n</sup></span>. Konvergensi linear.`,
+ `f(x<sub>l</sub>), f(x<sub>u</sub>) tanda sama → tidak ada akar atau jumlah akar genap. Tanda beda → jumlah akar ganjil. Pengecualian: akar ganda (menyinggung sumbu x) dan fungsi diskontinu.`],
+qs:[
+{id:'3.1',tag:'Iterasi',stmt:`<p>Cari akar <span class="m">f(x) = x³ − x − 2</span> dengan biseksi, x<sub>l</sub> = 1, x<sub>u</sub> = 2, ε<sub>s</sub> = 1%.</p>`,
+ fields:[{l:'x<sub>m</sub> iterasi 3',a:1.625},{l:'Jumlah iterasi sampai berhenti',a:7,abs:0},{l:'x<sub>m</sub> akhir',a:1.523438,abs:2e-5}],
+ sol:`<p>Cek: f(1) = −2, f(2) = 4, tanda berbeda.</p>`+T(['Iter','x<sub>l</sub>','x<sub>u</sub>','x<sub>m</sub>','f(x<sub>m</sub>)','|ε<sub>a</sub>| %'],[[1,'1','2','1,5','−0,125','–'],[2,'1,5','2','1,75','1,6094','14,29'],[3,'1,5','1,75','1,625','0,6660','7,692'],[4,'1,5','1,625','1,5625','0,2522','4,000'],[5,'1,5','1,5625','1,53125','0,0591','2,041'],[6,'1,5','1,53125','1,515625','−0,0341','1,031'],[7,'1,515625','1,53125','1,523438','0,0123','0,513']],[6])+`<p>Contoh keputusan iterasi 1: f(1)·f(1,5) = (−2)(−0,125) &gt; 0 → x<sub>l</sub> = 1,5. Iterasi 6 masih 1,031% (sedikit di atas 1%), jadi berhenti di <b>iterasi 7</b>, x<sub>m</sub> = <b>1,523438</b> (akar sejati 1,52138).</p>`},
+{id:'3.2',tag:'Iterasi',stmt:`<p>Gunakan biseksi pada <span class="m">f(x) = cos x − x</span> (radian), x<sub>l</sub> = 0, x<sub>u</sub> = 1. Tentukan x<sub>m</sub> dan |ε<sub>a</sub>| pada iterasi ke-3.</p>`,
+ fields:[{l:'x<sub>m</sub> iterasi 3',a:0.625},{l:'|ε<sub>a</sub>| iterasi 3 (%)',a:20,abs:0.05}],
+ sol:T(['Iter','x<sub>l</sub>','x<sub>u</sub>','x<sub>m</sub>','f(x<sub>m</sub>)','|ε<sub>a</sub>| %'],[[1,'0','1','0,5','0,3776','–'],[2,'0,5','1','0,75','−0,0183','33,33'],[3,'0,5','0,75','0,625','0,1860','20,00']],[2])+`<p>Iterasi 1: f(0)·f(0,5) = (1)(0,3776) &gt; 0 → x<sub>l</sub> = 0,5. Iterasi 2: f(0,5)·f(0,75) &lt; 0 → x<sub>u</sub> = 0,75. Iterasi 3: |ε<sub>a</sub>| = |(0,625 − 0,75)/0,625| × 100% = <b>20%</b>.</p><p class="note">Jebakan umum: kalkulator dalam mode derajat. Pastikan mode radian.</p>`},
+{id:'3.3',tag:'Hitungan',stmt:`<p>Interval awal [0, 1]. Berapa iterasi biseksi minimal agar lebar interval &lt; 0,001?</p>`,
+ fields:[{l:'n minimal',a:10,abs:0}],
+ sol:`<p>(1 − 0)/2<sup>n</sup> &lt; 0,001 → 2<sup>n</sup> &gt; 1000 → n &gt; log₂ 1000 = 9,97. Jadi <b>n = 10</b> (2¹⁰ = 1024).</p>`},
+{id:'3.4',tag:'Konsep',stmt:`<p>Jika f(x<sub>l</sub>)·f(x<sub>u</sub>) &gt; 0, kesimpulan yang tepat adalah…</p>`,
+ opts:['Pasti tidak ada akar di interval','Tidak ada akar atau ada akar dalam jumlah genap','Ada tepat satu akar','Ada akar dalam jumlah ganjil'],ans:1,
+ sol:`<p>Tanda sama di kedua ujung berarti grafik bisa tidak memotong sumbu x sama sekali, atau memotongnya dua kali, empat kali, dst. Jadi <b>tidak ada akar atau jumlahnya genap</b>, dan biseksi tidak bisa dipakai.</p>`},
+{id:'3.5',tag:'Konsep',stmt:`<p>Untuk <span class="m">f(x) = 1/(x − 1)</span> di [0, 2], f(0) = −1 dan f(2) = 1. Apa yang terjadi kalau biseksi dijalankan?</p>`,
+ opts:['Konvergen ke akar x = 1','Interval menyempit ke x = 1, tapi itu diskontinuitas, bukan akar','Metode langsung berhenti di iterasi 1','Konvergen ke akar x = 0'],ans:1,
+ sol:`<p>Syarat kontinuitas dilanggar. Ini <b>false bracket</b>: tandanya berubah karena asimtot di x = 1, bukan karena akar. Interval tetap menyempit ke x = 1, padahal f(x) di sana tidak nol (bahkan tak hingga).</p>`},
+{id:'3.6',tag:'Konsep',stmt:`<p>Fungsi <span class="m">f(x) = (x − 2)²(x − 4)</span> memiliki akar x = 2 yang disebut…</p>`,
+ opts:['Akar kompleks','Akar ganda (multiple root), grafik menyinggung sumbu x','Akar palsu karena diskontinuitas','Akar transendental'],ans:1,
+ sol:`<p>x = 2 membuat dua faktor bernilai nol, jadi <b>akar ganda</b>. Grafiknya menyinggung sumbu x tanpa berganti tanda, sehingga biseksi tidak bisa mendeteksinya dengan uji tanda.</p>`}
+]},
+
+{key:'p4',tab:'Metode Terbuka',title:'Bagian 4. Akar Persamaan: Newton-Raphson, Secant, NR Multi-Persamaan',src:'Lecture 05 · Chapra Bab 6',
+rumus:[
+ `Newton-Raphson: <span class="m">x<sub>i+1</sub> = x<sub>i</sub> − f(x<sub>i</sub>)/f'(x<sub>i</sub>)</span> (konvergensi kuadratik, orde 2)`,
+ `Secant: <span class="m">x<sub>i+1</sub> = x<sub>i</sub> − </span>${F('f(x<sub>i</sub>)(x<sub>i−1</sub> − x<sub>i</sub>)','f(x<sub>i−1</sub>) − f(x<sub>i</sub>)')} (orde ≈ 1,618, tanpa turunan)`,
+ `NR dua persamaan u(x,y) = 0, v(x,y) = 0, dengan J = u<sub>x</sub>v<sub>y</sub> − u<sub>y</sub>v<sub>x</sub>:`,
+ `<span class="m">x<sub>i+1</sub> = x<sub>i</sub> − (u·v<sub>y</sub> − v·u<sub>y</sub>)/J</span> dan <span class="m">y<sub>i+1</sub> = y<sub>i</sub> − (v·u<sub>x</sub> − u·v<sub>x</sub>)/J</span>`,
+ `Jebakan NR: titik belok dekat akar (divergen), osilasi di sekitar min/maks lokal, lompat ke akar lain, f'(x) ≈ 0 (langkah meledak).`,
+ `Urutan orde: biseksi 1 &lt; secant 1,618 &lt; IQI 1,84 &lt; NR 2. Brent = biseksi + secant + IQI (dipakai fzero di MATLAB).`],
+qs:[
+{id:'4.1',tag:'Iterasi',stmt:`<p>Cari akar <span class="m">f(x) = x³ − 2x − 5</span> dengan Newton-Raphson, x₀ = 2, ε<sub>s</sub> = 0,1%.</p>`,
+ fields:[{l:'x₁',a:2.1},{l:'x₂',a:2.0945681,abs:2e-6},{l:'Jumlah iterasi',a:3,abs:0}],
+ sol:`<p>f'(x) = 3x² − 2.</p><p>Iterasi 1: f(2) = −1, f'(2) = 10 → x₁ = 2 − (−1/10) = 2,1. |ε<sub>a</sub>| = 4,762%.</p><p>Iterasi 2: f(2,1) = 0,061, f'(2,1) = 11,23 → x₂ = 2,1 − 0,061/11,23 = 2,0945681. |ε<sub>a</sub>| = 0,259% (masih &gt; 0,1%).</p><p>Iterasi 3: x₃ = 2,0945515, |ε<sub>a</sub>| = 0,00079% &lt; 0,1% → berhenti di <b>3 iterasi</b>.</p><p>Perhatikan galatnya turun drastis (4,76 → 0,26 → 0,0008). Itu ciri konvergensi kuadratik.</p>`},
+{id:'4.2',tag:'Iterasi',stmt:`<p>Hitung √10 dengan Newton-Raphson pada <span class="m">f(x) = x² − 10</span>, x₀ = 3. Lakukan 2 iterasi.</p>`,
+ fields:[{l:'x₁',a:3.1666667,abs:2e-6},{l:'x₂',a:3.1622807,abs:2e-6},{l:'|ε<sub>a</sub>| iterasi 2 (%)',a:0.1387,abs:1e-3}],
+ sol:`<p>x<sub>i+1</sub> = x<sub>i</sub> − (x<sub>i</sub>² − 10)/(2x<sub>i</sub>).</p><p>x₁ = 3 − (9 − 10)/6 = 3,1666667.</p><p>x₂ = 3,1666667 − (10,027778 − 10)/6,333333 = 3,1622807.</p><p>|ε<sub>a</sub>| = |(3,1622807 − 3,1666667)/3,1622807| × 100% = <b>0,1387%</b>. Nilai sejati 3,1622777.</p>`},
+{id:'4.3',tag:'Iterasi',stmt:`<p>Cari akar <span class="m">f(x) = x³ − x − 2</span> dengan metode secant, x₋₁ = 1, x₀ = 2, ε<sub>s</sub> = 1%. (Bandingkan dengan soal 3.1.)</p>`,
+ fields:[{l:'x₁',a:1.333333,abs:2e-6},{l:'x₂',a:1.462687,abs:2e-6},{l:'Jumlah iterasi',a:4,abs:0},{l:'Akar akhir',a:1.520926,abs:2e-5}],
+ sol:`<p>Iterasi 1: f(1) = −2, f(2) = 4. x₁ = 2 − ${F('4(1 − 2)','−2 − 4')} = 2 − 0,666667 = 1,333333.</p>`+T(['Iter','x<sub>i−1</sub>','x<sub>i</sub>','x<sub>i+1</sub>','|ε<sub>a</sub>| %'],[[1,'1','2','1,333333','50,00'],[2,'2','1,333333','1,462687','8,844'],[3,'1,333333','1,462687','1,531169','4,473'],[4,'1,462687','1,531169','1,520926','0,674']],[3])+`<p>Berhenti di <b>iterasi 4</b>. Biseksi butuh 7 iterasi untuk soal yang sama.</p>`},
+{id:'4.4',tag:'Iterasi',stmt:`<p>Gunakan NR multi-persamaan untuk sistem berikut, tebakan awal (x, y) = (1,5; 1,5). Lakukan 1 iterasi.</p><div class="eq">u(x,y) = x² + y² − 5 = 0
+v(x,y) = x² − y − 1 = 0</div>`,
+ fields:[{l:'det J',a:-12},{l:'x₁',a:1.604167,abs:2e-6},{l:'y₁',a:1.5625,abs:2e-6}],
+ sol:`<p>Turunan parsial: u<sub>x</sub> = 2x = 3, u<sub>y</sub> = 2y = 3, v<sub>x</sub> = 2x = 3, v<sub>y</sub> = −1.</p><p>det J = (3)(−1) − (3)(3) = <b>−12</b>.</p><p>u₀ = 2,25 + 2,25 − 5 = −0,5. v₀ = 2,25 − 1,5 − 1 = −0,25.</p><p>x₁ = 1,5 − ${F('(−0,5)(−1) − (−0,25)(3)','−12')} = 1,5 − ${F('1,25','−12')} = <b>1,604167</b></p><p>y₁ = 1,5 − ${F('(−0,25)(3) − (−0,5)(3)','−12')} = 1,5 − ${F('0,75','−12')} = <b>1,5625</b></p><p>Iterasi 2 memberi (1,600489; 1,561553). Akar sejati (1,600485; 1,561553).</p>`},
+{id:'4.5',tag:'Konsep',stmt:`<p>Urutan metode dari konvergensi paling lambat ke paling cepat adalah…</p>`,
+ opts:['NR, secant, IQI, biseksi','Biseksi, secant, IQI, NR','Secant, biseksi, NR, IQI','Biseksi, NR, secant, IQI'],ans:1,
+ sol:`<p>Orde: biseksi 1 (linear), secant ≈ 1,618, IQI ≈ 1,84, NR = 2 (kuadratik). Jadi <b>biseksi, secant, IQI, NR</b>.</p>`},
+{id:'4.6',tag:'Konsep',stmt:`<p>Pada NR, tebakan awal berada di titik yang hampir datar sehingga f'(x<sub>i</sub>) ≈ 0. Akibatnya…</p>`,
+ opts:['Iterasi langsung konvergen','Langkah iterasi menjadi sangat besar dan bisa terlempar jauh dari akar','Metode berubah menjadi biseksi otomatis','Galat menjadi nol'],ans:1,
+ sol:`<p>NR membagi dengan f'(x<sub>i</sub>). Pembagi kecil membuat <b>langkah sangat besar</b>, iterasi bisa terlempar jauh atau ke akar lain. Strateginya: pilih tebakan lebih baik, cek |f'| sebelum membagi, atau pindah ke metode hybrid.</p>`},
+{id:'4.7',tag:'Konsep',stmt:`<p>Pernyataan yang benar tentang metode Brent adalah…</p>`,
+ opts:['Hanya memakai Newton-Raphson dengan turunan numerik','Menggabungkan biseksi, secant, dan IQI; biseksi jadi cadangan supaya estimasi tetap di dalam bracket','Termasuk metode terbuka murni yang bisa divergen','Butuh turunan analitik f\'(x)'],ans:1,
+ sol:`<p>Brent memakai metode cepat (secant, IQI) bila memungkinkan dan jatuh ke <b>biseksi sebagai cadangan</b> supaya tetap dalam bracket. Fungsi fzero di MATLAB/Octave berbasis Brent.</p>`},
+{id:'4.8',tag:'Konsep',stmt:`<p>Perbedaan utama metode tertutup (bracketing) dan terbuka adalah…</p>`,
+ opts:['Metode tertutup selalu lebih cepat','Metode tertutup butuh interval yang mengapit akar dan selalu konvergen; metode terbuka cukup satu/dua tebakan, bisa divergen, tapi biasanya lebih cepat','Metode terbuka tidak butuh tebakan awal','Keduanya identik kecuali rumus galatnya'],ans:1,
+ sol:`<p>Bracketing (biseksi) dijamin konvergen selama f kontinu dan ada beda tanda. Metode terbuka (NR, secant) tidak dijamin, tapi kalau konvergen biasanya jauh lebih cepat.</p>`}
+]},
+
+{key:'p5',tab:'Regresi',title:'Bagian 5. Curve Fitting: Regresi Kuadrat Terkecil',src:'Lecture 06 · Chapra Bab 17',
+rumus:[
+ `<span class="m">a₁ = </span>${F('nΣx<sub>i</sub>y<sub>i</sub> − Σx<sub>i</sub>Σy<sub>i</sub>','nΣx<sub>i</sub>² − (Σx<sub>i</sub>)²')}<span class="m">,  a₀ = ȳ − a₁x̄</span>`,
+ `<span class="m">S<sub>r</sub> = Σ(y<sub>i</sub> − a₀ − a₁x<sub>i</sub>)²,  S<sub>t</sub> = Σ(y<sub>i</sub> − ȳ)²</span>`,
+ `<span class="m">s<sub>y/x</sub> = √(S<sub>r</sub>/(n − 2)),  r² = (S<sub>t</sub> − S<sub>r</sub>)/S<sub>t</sub>,  r = tanda(a₁)·√r²</span>`,
+ `Linearisasi: eksponensial y = ae<sup>bx</sup> → ln y = ln a + bx. Pangkat y = ax<sup>b</sup> → log y = log a + b log x. Saturasi y = ax/(b+x) → 1/y = 1/a + (b/a)(1/x).`,
+ `Model y = a₀(1 − e<sup>−a₁x</sup>) tidak bisa dilinearkan (intrinsically nonlinear) → Gauss-Newton iteratif.`,
+ `Kriteria fit: Σe<sub>i</sub> (gagal, saling meniadakan), Σ|e<sub>i</sub>| (bisa tidak unik), minimax max|e<sub>i</sub>| (sensitif outlier), S<sub>r</sub> (unik, dipakai).`],
+qs:[
+{id:'5.1',tag:'Hitungan',stmt:`<p>Fit garis kuadrat terkecil untuk data berikut, lalu hitung kualitas fit-nya.</p>`+T(['x','1','2','3','4','5','6'],[['y','3,2','4,9','7,1','8,8','11,2','12,9']]),
+ fields:[{l:'Σx<sub>i</sub>y<sub>i</sub>',a:202.9},{l:'a₁ (slope)',a:1.974286},{l:'a₀ (intersep)',a:1.106667},{l:'S<sub>r</sub>',a:0.136762,abs:5e-4},{l:'S<sub>t</sub>',a:68.348333},{l:'s<sub>y/x</sub>',a:0.184907,abs:5e-4},{l:'r²',a:0.997999,abs:2e-4},{l:'ŷ di x = 7',a:14.92667}],
+ sol:`<p>n = 6, Σx = 21, Σy = 48,1, Σx² = 91, Σxy = 202,9.</p><p>a₁ = ${F('6(202,9) − 21(48,1)','6(91) − 21²')} = ${F('1217,4 − 1010,1','546 − 441')} = ${F('207,3','105')} = <b>1,974286</b></p><p>a₀ = 48,1/6 − 1,974286(21/6) = 8,016667 − 6,910000 = <b>1,106667</b></p>`+
+ T(['x','y','ŷ','e = y − ŷ','e²','(y − ȳ)²'],[[1,'3,2','3,080952','0,119048','0,014172','23,2003'],[2,'4,9','5,055238','−0,155238','0,024099','9,7136'],[3,'7,1','7,029524','0,070476','0,004967','0,8403'],[4,'8,8','9,003810','−0,203810','0,041538','0,6136'],[5,'11,2','10,978095','0,221905','0,049242','10,1336'],[6,'12,9','12,952381','−0,052381','0,002744','23,8469'],['Σ','48,1','48,1','0','0,136762','68,3483']],[6])+
+ `<p>s<sub>y/x</sub> = √(0,136762/4) = 0,184907. r² = 1 − 0,136762/68,348333 = <b>0,99800</b>, r = +0,9990.</p><p>ŷ(7) = 1,106667 + 1,974286(7) = <b>14,9267</b>. Karena x = 7 di luar rentang data (1 sampai 6), ini <b>ekstrapolasi</b> dan kurang dapat dipercaya.</p>`},
+{id:'5.2',tag:'Kriteria fit',stmt:`<p>Data: (1, 2), (2, 3), (3, 5), (4, 4). Bandingkan garis A: <span class="m">y = x + 1</span> dan garis B: <span class="m">y = 0,8x + 1,5</span>.</p>`,
+ fields:[{l:'S<sub>r</sub> garis A',a:2},{l:'S<sub>r</sub> garis B',a:1.8},{l:'Σ|e<sub>i</sub>| garis A',a:2},{l:'max|e<sub>i</sub>| garis B',a:1.1}],
+ sol:T(['Garis','e₁','e₂','e₃','e₄','Σe','Σ|e|','max|e|','S<sub>r</sub>'],[['A: x + 1','0','0','1','−1','0','2','1','2'],['B: 0,8x + 1,5','−0,3','−0,1','1,1','−0,7','0','2,2','1,1','1,8']])+
+ `<p>Keduanya punya Σe = 0, jadi kriteria jumlah residu tidak bisa membedakan. Garis A menang di Σ|e| dan minimax, tapi garis B punya S<sub>r</sub> lebih kecil. Ternyata B persis hasil regresi kuadrat terkecil (a₁ = 0,8, a₀ = 1,5). Pelajaran: <b>"terbaik" tergantung kriteria</b>, dan least squares memilih B.</p>`},
+{id:'5.3',tag:'Linearisasi',stmt:`<p>Fit model eksponensial <span class="m">y = a·e<sup>bx</sup></span> memakai ln y.</p>`+T(['x','0','1','2','3','4'],[['y','1,5','2,4','3,9','6,3','10,2']]),
+ fields:[{l:'Σ ln y<sub>i</sub>',a:6.8048,abs:5e-4},{l:'b',a:0.47989,abs:3e-4},{l:'a',a:1.49359,abs:2e-3},{l:'ŷ di x = 2,5',a:4.9576,abs:5e-3}],
+ sol:`<p>Transformasi: Y = ln y = ln a + bx. Ini garis lurus Y terhadap x.</p>`+T(['x','y','Y = ln y','xY'],[[0,'1,5','0,4055','0'],[1,'2,4','0,8755','0,8755'],[2,'3,9','1,3610','2,7220'],[3,'6,3','1,8405','5,5216'],[4,'10,2','2,3224','9,2895'],['Σ = 10','','6,8048','18,4086']])+
+ `<p>Σx² = 30, n = 5.</p><p>b = ${F('5(18,4086) − 10(6,8048)','5(30) − 10²')} = ${F('23,995','50')} = <b>0,4799</b></p><p>ln a = 6,8048/5 − 0,4799(2) = 0,4012 → a = e<sup>0,4012</sup> = <b>1,4936</b></p><p>Model: y = 1,4936·e<sup>0,4799x</sup>. ŷ(2,5) = 1,4936·e<sup>1,1997</sup> = <b>4,958</b>.</p>`},
+{id:'5.4',tag:'Konsep',stmt:`<p>Data simetris x = −3, …, 3 dengan y = x² menghasilkan garis regresi ŷ = 4 dan r = 0. Interpretasi yang benar?</p>`,
+ opts:['x dan y sama sekali tidak berhubungan','Tidak ada hubungan linear, tapi ada hubungan nonlinear; model garis lurus tidak cocok','Regresi salah hitung','r = 0 berarti fit sempurna'],ans:1,
+ sol:`<p>r hanya mengukur <b>asosiasi linear</b>. Tren turun (x &lt; 0) dan naik (x &gt; 0) saling meniadakan. Pola residu berbentuk U menunjukkan model garis lurus tidak memadai.</p>`},
+{id:'5.5',tag:'Konsep',stmt:`<p>Model mana yang <b>tidak bisa</b> dilinearkan dan harus diselesaikan iteratif (Gauss-Newton)?</p>`,
+ opts:['y = a·e<sup>bx</sup>','y = a·x<sup>b</sup>','y = ax/(b + x)','y = a₀(1 − e<sup>−a₁x</sup>)'],ans:3,
+ sol:`<p>Tiga yang pertama bisa dilinearkan (ln, log-log, kebalikan). <b>y = a₀(1 − e<sup>−a₁x</sup>)</b> nonlinear dalam parameternya, jadi pakai Gauss-Newton: linearkan dengan deret Taylor orde 1 di sekitar parameter saat ini, lalu ulangi.</p>`},
+{id:'5.6',tag:'Konsep',stmt:`<p>Untuk model saturasi <span class="m">y = ax/(b + x)</span>, transformasi yang membuatnya linear adalah…</p>`,
+ opts:['ln y terhadap x','log y terhadap log x','1/y terhadap 1/x','y terhadap x²'],ans:2,
+ sol:`<p>Balik kedua sisi: 1/y = (b + x)/(ax) = 1/a + (b/a)(1/x). Jadi plot <b>1/y terhadap 1/x</b>: intersep 1/a, slope b/a.</p>`},
+{id:'5.7',tag:'Konsep',stmt:`<p>Kapan regresi lebih tepat dipakai daripada interpolasi?</p>`,
+ opts:['Saat data sangat presisi dari tabel','Saat data mengandung noise dan yang dicari adalah tren umum','Saat ingin kurva melewati semua titik','Saat jumlah data tepat n + 1'],ans:1,
+ sol:`<p><b>Regresi</b> untuk data bernoise (pengukuran, load test): kurva mengikuti tren, tidak harus lewat semua titik. Interpolasi untuk data presisi: kurva lewat tepat di setiap titik.</p>`}
+]},
+
+{key:'p6',tab:'Interpolasi',title:'Bagian 6. Curve Fitting: Interpolasi Newton dan Lagrange',src:'Lecture 07 · Chapra Bab 18',
+rumus:[
+ `Linear: <span class="m">f₁(x) = f(x₀) + </span>${F('f(x₁) − f(x₀)','x₁ − x₀')}<span class="m">(x − x₀)</span>`,
+ `Newton: <span class="m">f<sub>n</sub>(x) = b₀ + b₁(x − x₀) + b₂(x − x₀)(x − x₁) + …</span>, dengan b₀ = f(x₀), b₁ = f[x₁,x₀], b₂ = f[x₂,x₁,x₀], …`,
+ `Beda terbagi: <span class="m">f[x<sub>i</sub>,x<sub>j</sub>] = (f(x<sub>i</sub>) − f(x<sub>j</sub>))/(x<sub>i</sub> − x<sub>j</sub>)</span>, <span class="m">f[x<sub>i</sub>,x<sub>j</sub>,x<sub>k</sub>] = (f[x<sub>i</sub>,x<sub>j</sub>] − f[x<sub>j</sub>,x<sub>k</sub>])/(x<sub>i</sub> − x<sub>k</sub>)</span>. Koefisien = entri paling atas tiap kolom.`,
+ `Koreksi orde berikut: <span class="m">f<sub>n+1</sub>(x) = f<sub>n</sub>(x) + R<sub>n</sub>(x)</span>, R<sub>n</sub> = b<sub>n+1</sub>(x − x₀)…(x − x<sub>n</sub>).`,
+ `Lagrange: <span class="m">f<sub>n</sub>(x) = Σ L<sub>i</sub>(x)f(x<sub>i</sub>)</span>, <span class="m">L<sub>i</sub>(x) = Π<sub>j≠i</sub> (x − x<sub>j</sub>)/(x<sub>i</sub> − x<sub>j</sub>)</span>. Cek: ΣL<sub>i</sub> = 1 (boleh ada yang negatif).`,
+ `n + 1 titik → tepat satu polinom orde n. Newton dan Lagrange memberi hasil sama. Newton enak kalau orde belum ditentukan, Lagrange kalau orde sudah diketahui.`],
+qs:[
+{id:'6.1',tag:'Hitungan',stmt:`<p>Diketahui ln 2 = 0,693147, ln 4 = 1,386294, ln 5 = 1,609438. Estimasi ln 3 dengan interpolasi linear (a) dari x = 2 ke 4, (b) dari x = 2 ke 5. Nilai sejati ln 3 = 1,098612.</p>`,
+ fields:[{l:'(a) f₁(3), interval 2 ke 4',a:1.039721},{l:'(a) ε<sub>t</sub> (%)',a:5.36,abs:0.02},{l:'(b) f₁(3), interval 2 ke 5',a:0.998577},{l:'(b) ε<sub>t</sub> (%)',a:9.11,abs:0.02}],
+ sol:`<p>(a) f₁(3) = 0,693147 + ${F('1,386294 − 0,693147','4 − 2')}(3 − 2) = 0,693147 + 0,346574 = <b>1,039721</b>. ε<sub>t</sub> = |1,098612 − 1,039721|/1,098612 × 100% = <b>5,36%</b>.</p><p>(b) f₁(3) = 0,693147 + ${F('1,609438 − 0,693147','5 − 2')}(1) = 0,693147 + 0,305430 = <b>0,998577</b>. ε<sub>t</sub> = <b>9,11%</b>.</p><p>Interval lebih pendek memberi galat lebih kecil.</p>`},
+{id:'6.2',tag:'Tabel beda terbagi',stmt:`<p>Data presisi berikut berasal dari sebuah polinom. Bangun polinom Newton orde 3 dan estimasi f(3).</p>`+T(['i','0','1','2','3'],[['x<sub>i</sub>','0','1','2','4'],['f(x<sub>i</sub>)','1','3','11','69']]),
+ fields:[{l:'b₁ = f[x₁,x₀]',a:2},{l:'b₂ = f[x₂,x₁,x₀]',a:3},{l:'b₃',a:1},{l:'f₂(3) (pakai 3 titik pertama)',a:25},{l:'R₂(3)',a:6},{l:'f₃(3)',a:31}],
+ sol:T(['i','x<sub>i</sub>','f(x<sub>i</sub>)','Pertama','Kedua','Ketiga'],[['0','0','<b>1</b>','<b>2</b>','<b>3</b>','<b>1</b>'],['1','1','3','8','7',''],['2','2','11','29','',''],['3','4','69','','','']])+
+ `<p>Kolom pertama: (3 − 1)/(1 − 0) = 2, (11 − 3)/(2 − 1) = 8, (69 − 11)/(4 − 2) = 29.</p><p>Kolom kedua: (8 − 2)/(2 − 0) = 3, (29 − 8)/(4 − 1) = 7. Kolom ketiga: (7 − 3)/(4 − 0) = 1.</p><p>f₂(3) = 1 + 2(3) + 3(3)(2) = 1 + 6 + 18 = <b>25</b>.</p><p>R₂(3) = 1·(3 − 0)(3 − 1)(3 − 2) = <b>6</b>, jadi f₃(3) = 25 + 6 = <b>31</b>.</p><p>Datanya dari f(x) = x³ + x + 1, dan f(3) = 27 + 3 + 1 = 31. Polinom orde 3 memang mereproduksi fungsi kubik secara eksak.</p>`},
+{id:'6.3',tag:'Hitungan',stmt:`<p>Gunakan Lagrange orde 2 dengan titik x₀ = 2, x₁ = 4, x₂ = 5 (data ln dari soal 6.1) untuk mengestimasi ln 3.</p>`,
+ fields:[{l:'L₀(3)',a:0.333333,abs:1e-4},{l:'L₁(3)',a:1,abs:1e-4},{l:'L₂(3)',a:-0.333333,abs:1e-4},{l:'f₂(3)',a:1.080864,abs:2e-5},{l:'ε<sub>t</sub> (%)',a:1.616,abs:0.02}],
+ sol:`<p>L₀(3) = ${F('(3 − 4)(3 − 5)','(2 − 4)(2 − 5)')} = ${F('2','6')} = 1/3</p><p>L₁(3) = ${F('(3 − 2)(3 − 5)','(4 − 2)(4 − 5)')} = ${F('−2','−2')} = 1</p><p>L₂(3) = ${F('(3 − 2)(3 − 4)','(5 − 2)(5 − 4)')} = ${F('−1','3')} = −1/3</p><p>Cek: 1/3 + 1 − 1/3 = 1 ✓.</p><p>f₂(3) = (1/3)(0,693147) + (1)(1,386294) − (1/3)(1,609438) = 0,231049 + 1,386294 − 0,536479 = <b>1,080864</b>. ε<sub>t</sub> = <b>1,62%</b>, jauh lebih baik dari linear.</p>`},
+{id:'6.4',tag:'Konsep',stmt:`<p>Ada 5 titik data dengan x berbeda. Polinom interpolasi unik yang melewati semuanya berorde…</p>`,
+ opts:['3','4','5','6'],ans:1,sol:`<p>n + 1 titik → orde n. 5 titik → orde <b>4</b>.</p>`},
+{id:'6.5',tag:'Konsep',stmt:`<p>Kamu belum tahu orde polinom berapa yang cukup, dan ingin menambah titik satu per satu. Bentuk mana yang lebih praktis?</p>`,
+ opts:['Lagrange, karena tidak perlu beda terbagi','Newton, karena tinggal menambah satu suku baru tanpa menghitung ulang','Regresi linear','Biseksi'],ans:1,
+ sol:`<p><b>Newton</b>: menambah titik cukup menghitung satu beda terbagi baru dan menambahkan suku R<sub>n</sub>(x). Lagrange harus menghitung ulang semua basis.</p>`},
+{id:'6.6',tag:'Konsep',stmt:`<p>Pada Lagrange orde 2, salah satu bobot L<sub>i</sub>(x) bernilai negatif. Artinya…</p>`,
+ opts:['Perhitungan pasti salah','Tidak masalah, bobot boleh negatif asal jumlah semua L<sub>i</sub>(x) = 1','Titik itu harus dibuang','Polinom tidak unik'],ans:1,
+ sol:`<p>Bobot Lagrange <b>boleh negatif</b> (contoh di kuliah L₂(2) = −0,2). Yang wajib adalah ΣL<sub>i</sub>(x) = 1, dan di titik node L<sub>i</sub>(x<sub>j</sub>) bernilai 1 kalau i = j, 0 kalau tidak.</p>`}
+]},
+
+{key:'p7',tab:'Simulasi UTS',title:'Bagian 7. Simulasi UTS (campuran, tanpa rumus bantu)',src:'Kerjakan dulu di kertas seperti ujian, baru cek.',
+rumus:null,
+qs:[
+{id:'S1',tag:'Gauss-Seidel',stmt:`<p>Selesaikan dengan Gauss-Seidel, tebakan awal semua nol. Cek dulu dominansi diagonal, lalu lakukan 2 iterasi.</p><div class="eq">10x₁ + 2x₂ −  x₃ =  27
+−3x₁ − 6x₂ + 2x₃ = −61,5
+  x₁ +  x₂ + 5x₃ = −21,5</div>`,
+ fields:[{l:'x₁ iterasi 1',a:2.7},{l:'x₂ iterasi 1',a:8.9},{l:'x₃ iterasi 1',a:-6.62},{l:'x₁ iterasi 2',a:0.258},{l:'x₂ iterasi 2',a:7.91433},{l:'x₃ iterasi 2',a:-5.93447}],
+ sol:`<p>Dominan diagonal: 10 ≥ 3, 6 ≥ 5, 5 ≥ 2 → ya, pasti konvergen.</p><div class="eq">x₁ = (27 − 2x₂ + x₃) / 10
+x₂ = (−61,5 + 3x₁ − 2x₃) / (−6)
+x₃ = (−21,5 − x₁ − x₂) / 5</div>`+
+ T(['Iter','x₁','x₂','x₃','|ε<sub>a</sub>|₁ %','|ε<sub>a</sub>|₂ %','|ε<sub>a</sub>|₃ %'],[[1,'2,7','8,9','−6,62','100','100','100'],[2,'0,258','7,91433','−5,93447','946,5','12,45','11,55']],[1])+
+ `<p>Iterasi 1: x₂ = (−61,5 + 8,1 − 0)/(−6) = 8,9. x₃ = (−21,5 − 2,7 − 8,9)/5 = −6,62.</p><p>Iterasi 2: x₁ = (27 − 17,8 − 6,62)/10 = 0,258. |ε<sub>a</sub>|₁ = 946,5% terlihat besar, tapi itu wajar di awal (seperti contoh di slide). Solusi eksak (0,5; 8; −6).</p>`},
+{id:'S2',tag:'Biseksi',stmt:`<p>Cari √3 sebagai akar <span class="m">f(x) = x² − 3</span> dengan biseksi pada [1, 2]. Lakukan 4 iterasi.</p>`,
+ fields:[{l:'x<sub>m</sub> iterasi 4',a:1.6875},{l:'|ε<sub>a</sub>| iterasi 4 (%)',a:3.704,abs:0.01}],
+ sol:T(['Iter','x<sub>l</sub>','x<sub>u</sub>','x<sub>m</sub>','f(x<sub>m</sub>)','|ε<sub>a</sub>| %'],[[1,'1','2','1,5','−0,75','–'],[2,'1,5','2','1,75','0,0625','14,29'],[3,'1,5','1,75','1,625','−0,3594','7,692'],[4,'1,625','1,75','1,6875','−0,1523','3,704']],[3])},
+{id:'S3',tag:'Newton-Raphson',stmt:`<p>Cari akar <span class="m">f(x) = x·e<sup>x</sup> − 1</span> dengan Newton-Raphson, x₀ = 0,5. Lakukan 2 iterasi.</p>`,
+ fields:[{l:'f\'(x) di x₀ = 0,5',a:2.473082,abs:2e-4},{l:'x₁',a:0.571020,abs:2e-5},{l:'x₂',a:0.567156,abs:2e-5},{l:'|ε<sub>a</sub>| iterasi 2 (%)',a:0.6814,abs:0.005}],
+ sol:`<p>f'(x) = e<sup>x</sup> + x·e<sup>x</sup> = e<sup>x</sup>(1 + x) (aturan perkalian).</p><p>f(0,5) = 0,5(1,648721) − 1 = −0,175639. f'(0,5) = 1,648721(1,5) = 2,473082.</p><p>x₁ = 0,5 − (−0,175639/2,473082) = <b>0,571020</b>, |ε<sub>a</sub>| = 12,44%.</p><p>x₂ = <b>0,567156</b>, |ε<sub>a</sub>| = <b>0,681%</b>. Akar sejati 0,567143.</p>`},
+{id:'S4',tag:'Regresi',stmt:`<p>Fit garis kuadrat terkecil dan hitung r².</p>`+T(['x','0','2','4','6','8'],[['y','1,0','2,1','2,9','4,2','4,8']]),
+ fields:[{l:'a₁',a:0.485},{l:'a₀',a:1.06},{l:'r²',a:0.99042,abs:3e-4}],
+ sol:`<p>n = 5, Σx = 20, Σy = 15, Σx² = 120, Σxy = 79,4.</p><p>a₁ = ${F('5(79,4) − 20(15)','5(120) − 400')} = ${F('97','200')} = <b>0,485</b>. a₀ = 3 − 0,485(4) = <b>1,06</b>.</p><p>S<sub>r</sub> = 0,091, S<sub>t</sub> = 9,5 → r² = 1 − 0,091/9,5 = <b>0,9904</b>.</p>`},
+{id:'S5',tag:'Interpolasi',stmt:`<p>Dari data presisi berikut, estimasi f(4) dengan interpolasi Newton orde 2.</p>`+T(['x','1','3','6'],[['f(x)','2,0','5,2','6,1']]),
+ fields:[{l:'b₁',a:1.6},{l:'b₂',a:-0.26},{l:'f₂(4)',a:6.02}],
+ sol:`<p>f[x₁,x₀] = (5,2 − 2,0)/(3 − 1) = 1,6. f[x₂,x₁] = (6,1 − 5,2)/(6 − 3) = 0,3. b₂ = (0,3 − 1,6)/(6 − 1) = −0,26.</p><p>f₂(4) = 2,0 + 1,6(4 − 1) − 0,26(4 − 1)(4 − 3) = 2,0 + 4,8 − 0,78 = <b>6,02</b>.</p>`},
+{id:'S6',tag:'Galat',stmt:`<p>Iterasi dihentikan saat hasil dijamin benar minimal 3 angka penting. Berapa ε<sub>s</sub> (%)?</p>`,
+ fields:[{l:'ε<sub>s</sub> (%)',a:0.05,abs:1e-9}],
+ sol:`<p>ε<sub>s</sub> = 0,5 × 10<sup>2−3</sup> = <b>0,05%</b>.</p>`}
+]}
+];
+
+/* ---------- state ---------- */
+let S={}; const KEY='uts-metnum-v1';
+try{S=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){S={}}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const num=s=>{if(s==null)return NaN;s=String(s).trim().replace(/\s/g,'').replace('−','-');if(!s)return NaN;
+  if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');else s=s.replace(',','.');
+  if(/^-?\d+\/\d+$/.test(s)){const[a,b]=s.split('/');return a/b}return Number(s)};
+const near=(v,f)=>{if(isNaN(v))return false;const tol=f.abs!=null?f.abs:Math.max(Math.abs(f.a)*0.005,1e-6);return Math.abs(v-f.a)<=tol+1e-12};
+
+const total=PARTS.reduce((s,p)=>s+p.qs.length,0);
+function prog(){let ok=0;PARTS.forEach(p=>p.qs.forEach(q=>{if(S[q.id]&&S[q.id].ok)ok++}));
+ document.getElementById('prog-txt').textContent=`${ok} / ${total} soal benar`;document.getElementById('prog-bar').style.width=(ok/total*100)+'%';
+ PARTS.forEach(p=>{const b=document.querySelector(`[data-tab="${p.key}"] .n`);if(b){const c=p.qs.filter(q=>S[q.id]&&S[q.id].ok).length;b.textContent=`${c}/${p.qs.length}`}})}
+
+function render(key){
+ const p=PARTS.find(x=>x.key===key);const m=document.getElementById('main');
+ let h=`<div class="part-head"><h2>${p.title}</h2><div class="src">${p.src}</div></div>`;
+ if(p.rumus)h+=`<details class="rumus"><summary>Rumus inti bagian ini</summary><ul>${p.rumus.map(r=>`<li>${r}</li>`).join('')}</ul></details>`;
+ p.qs.forEach(q=>{
+  const st=S[q.id]||{};
+  h+=`<section class="q" id="q-${q.id}"><div class="q-top"><h3><span class="id">${q.id}</span><span class="tag">${q.tag}</span></h3><span class="state ${st.ok?'ok':(st.tried?'bad':'')}" data-state>${st.ok?'benar':(st.tried?'belum tepat':'belum dicoba')}</span></div><div class="stmt">${q.stmt}</div>`;
+  if(q.fields){h+=`<div class="fields">${q.fields.map((f,i)=>`<div class="field"><label for="f-${q.id}-${i}">${f.l}</label><div class="row"><input id="f-${q.id}-${i}" inputmode="decimal" autocomplete="off" value="${(st.v&&st.v[i])||''}"><span class="mark" data-mark="${i}"></span></div></div>`).join('')}</div>`}
+  else{h+=`<div class="opts">${q.opts.map((o,i)=>`<label class="opt" data-opt="${i}"><input type="radio" name="r-${q.id}" id="r-${q.id}-${i}" value="${i}" ${st.c===i?'checked':''}><span>${String.fromCharCode(65+i)}. ${o}</span></label>`).join('')}</div>`}
+  h+=`<div class="actions"><button class="btn" data-check="${q.id}">Cek</button><button class="btn ghost" data-sol="${q.id}">Lihat pembahasan</button></div><div class="feedback" data-fb></div><div class="sol" hidden data-solbox><h4>Pembahasan</h4>${q.sol}</div></section>`;
+ });
+ m.innerHTML=h;
+ p.qs.forEach(q=>{if(S[q.id]&&S[q.id].tried)check(q,true)});
+}
+function check(q,silent){
+ const sec=document.getElementById('q-'+q.id);const st=S[q.id]||(S[q.id]={});let ok=true,filled=0;
+ if(q.fields){st.v=[];q.fields.forEach((f,i)=>{const inp=document.getElementById('f-'+q.id+'-'+i);const v=num(inp.value);st.v[i]=inp.value;
+   const mk=sec.querySelector(`[data-mark="${i}"]`);inp.classList.remove('ok','bad');mk.textContent='';
+   if(inp.value.trim()===''){ok=false;return}filled++;
+   if(near(v,f)){inp.classList.add('ok');mk.textContent='✓';mk.style.color='var(--ok)'}else{ok=false;inp.classList.add('bad');mk.textContent='✗';mk.style.color='var(--bad)'}});
+   sec.querySelector('[data-fb]').textContent=ok?'Semua tepat.':(filled<q.fields.length?`${filled} dari ${q.fields.length} kolom terisi. Isi semuanya untuk dinilai lengkap.`:'Ada yang belum tepat. Cek ulang langkahmu atau buka pembahasan.');}
+ else{const r=sec.querySelector(`input[name="r-${q.id}"]:checked`);sec.querySelectorAll('.opt').forEach(o=>o.classList.remove('ok','bad'));
+   if(!r){ok=false;filled=0;if(!silent)sec.querySelector('[data-fb]').textContent='Pilih salah satu jawaban dulu.';}
+   else{filled=1;const c=+r.value;st.c=c;ok=c===q.ans;sec.querySelector(`[data-opt="${c}"]`).classList.add(ok?'ok':'bad');if(!ok)sec.querySelector(`[data-opt="${q.ans}"]`).classList.add('ok');
+   sec.querySelector('[data-fb]').textContent=ok?'Benar.':`Kurang tepat. Jawaban yang benar: ${String.fromCharCode(65+q.ans)}.`;}}
+ if(filled){st.tried=true;st.ok=ok}
+ const b=sec.querySelector('[data-state]');b.className='state '+(st.ok?'ok':(st.tried?'bad':''));b.textContent=st.ok?'benar':(st.tried?'belum tepat':'belum dicoba');
+ save();prog();
+}
+const tabs=document.getElementById('tabs');
+PARTS.forEach((p,i)=>{const b=document.createElement('button');b.setAttribute('role','tab');b.dataset.tab=p.key;b.innerHTML=`${i+1}. ${p.tab} <span class="n"></span>`;b.onclick=()=>select(p.key);tabs.appendChild(b)});
+function select(k){S._tab=k;save();tabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===k));render(k);}
+document.getElementById('main').addEventListener('click',e=>{
+ const c=e.target.closest('[data-check]');if(c){const q=PARTS.flatMap(p=>p.qs).find(x=>x.id===c.dataset.check);check(q);return}
+ const s=e.target.closest('[data-sol]');if(s){const box=document.getElementById('q-'+s.dataset.sol).querySelector('[data-solbox]');box.hidden=!box.hidden;s.textContent=box.hidden?'Lihat pembahasan':'Tutup pembahasan'}});
+document.getElementById('main').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.field input')){const q=PARTS.flatMap(p=>p.qs).find(x=>x.id===e.target.closest('.q').id.slice(2));check(q)}});
+let armed=false;document.getElementById('reset').onclick=e=>{if(!armed){armed=true;e.target.textContent='Klik sekali lagi untuk menghapus';setTimeout(()=>{armed=false;e.target.textContent='Hapus semua jawaban'},3000);return}
+ const t=S._tab;S={_tab:t};save();armed=false;e.target.textContent='Hapus semua jawaban';select(t||'p1');prog()};
+select(S._tab&&PARTS.some(p=>p.key===S._tab)?S._tab:'p1');prog();
+</script>
+
+</body></html>
